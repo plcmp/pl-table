@@ -1,16 +1,16 @@
-import { css, html, PlElement, Template } from "polylib";
+import { css, html, PlElement, Template } from 'polylib';
 
 import '@plcmp/pl-virtual-scroll';
 
-import "@plcmp/pl-icon";
-import "@plcmp/pl-iconset-default";
-import "@plcmp/pl-data-tree";
-import "@plcmp/pl-checkbox";
+import '@plcmp/pl-icon';
+import '@plcmp/pl-iconset-default';
+import '@plcmp/pl-data-tree';
+import '@plcmp/pl-checkbox';
 
 import { PlResizeableMixin, throttle, PlaceHolder } from '@plcmp/utils';
 import dayjs from 'dayjs/esm/index.js';
 
-import "./pl-table-column.js";
+import './pl-table-column.js';
 
 class PlTable extends PlResizeableMixin(PlElement) {
     static properties = {
@@ -28,7 +28,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         getCellPartName: { type: Function, value: () => { } },
         variableRowHeight: { type: Boolean, value: false, observer: '_variableRowHeightObserver' },
         growing: { type: Boolean, value: false, observer: '_growingObserver' }
-    }
+    };
 
     static css = css`
         :host {
@@ -347,6 +347,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             margin-inline-end: 4px;
         }
     `;
+
     static checkboxCellTemplate = `<pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
     static treeFirstCellTemplate = `<pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>`;
 
@@ -418,7 +419,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         if (styleComment) this.shadowRoot.append(styleComment._tpl.tpl.content.cloneNode(true));
 
         const headerResizeObserver = new ResizeObserver(throttle((entries) => {
-            let headerWidth = entries[0].contentRect.width;
+            const headerWidth = entries[0].contentRect.width;
 
             if (this.$.container.offsetWidth > headerWidth) {
                 this.$.rowsContainer.style.width = '100%';
@@ -436,12 +437,12 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 this.$.container.style.setProperty('--pl-footer-container-position', 'sticky');
             }
 
-            this.$.scroller.render()
+            this.$.scroller.render();
         }, 5));
 
         containerResizeObserver.observe(this.$.rowsContainer);
 
-        const observer = new MutationObserver(throttle(() =>  {
+        const observer = new MutationObserver(throttle(() => {
             this._init();
         }), 15);
 
@@ -472,8 +473,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         if (row) {
             if (column.titleField) {
                 return this.getByPath(row, column.titleField);
-            }
-            else {
+            } else {
                 return this._getValue(row, column.field, column.kind, column.format);
             }
         }
@@ -510,17 +510,16 @@ class PlTable extends PlResizeableMixin(PlElement) {
             sort = 'asc';
         } else if (event.model.column.sort === 'asc') {
             sort = 'desc';
-        }
-        else {
+        } else {
             sort = '';
         }
 
         this.set(`_columns.${event.model.column.index}.sort`, sort);
-        this._changeColumnSort(event.model.column, sort)
+        this._changeColumnSort(event.model.column, sort);
     }
 
     getByPath(object, path, delimiter = '.') {
-        if (path == undefined) return '';
+        if (path === undefined) return '';
         path = path.split(delimiter);
         let i;
         for (i = 0; i < path.length - 1; i++) {
@@ -533,16 +532,16 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     onResize(event) {
-        let columnIdx = event.model.column.index;
+        const columnIdx = event.model.column.index;
         let width = event.model.column.width;
-        let minWidth = event.model.column.minWidth;
+        const minWidth = event.model.column.minWidth;
         if (!width) width = this.root.querySelector(`.headerEl.column-${columnIdx}`).offsetWidth;
-        let _resizeBase = { baseSize: parseInt(width), baseMoveOffset: event.screenX };
+        const _resizeBase = { baseSize: parseInt(width), baseMoveOffset: event.screenX };
         event.preventDefault();
         const moveHandler = throttle((event) => {
             width = Math.max(minWidth, _resizeBase.baseSize + (event.screenX - _resizeBase.baseMoveOffset));
             this._changeColumnWidth(this._columns[columnIdx], width);
-        }, 20)
+        }, 20);
 
         const removeHandlers = () => {
             document.removeEventListener('mousemove', moveHandler);
@@ -562,22 +561,22 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     _dataObserver(_data, _old, mut) {
-        if (mut.action === 'splice' && mut.path == 'data') {
+        if (mut.action === 'splice' && mut.path === 'data') {
             if (mut?.deleted?.includes(this.selected)) {
                 this.selected = null;
             }
         }
 
-        if (mut.path != 'data' && this.selected) {
-            let m = mut.path.match(/^data\.(\d*)/);
-            if (m[1] == this.data.indexOf(this.selected)) {
+        if (mut.path !== 'data' && this.selected) {
+            const m = mut.path.match(/^data\.(\d*)/);
+            if (m[1] === this.data.indexOf(this.selected)) {
                 this.forwardNotify(mut, `data.${m[1]}`, 'selected');
             }
         }
     }
 
     _getHeaderStyle(col) {
-        let style = [];
+        const style = [];
         switch (col.headerAlign) {
             case 'end':
             case 'flex-end':
@@ -606,7 +605,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     _getCellClass(col, el) {
-        if (el == 'headerEl') {
+        if (el === 'headerEl') {
             return el + ' ' + col.class + ' cell' + (col._isHeaderColumn ? ' group' : '');
         }
 
@@ -617,60 +616,58 @@ class PlTable extends PlResizeableMixin(PlElement) {
         const { index, attribute, value, init } = event.detail;
         if (this._columns[index]) {
             if (attribute === 'sort') {
-                this._changeColumnSort(this._columns[index], value, init)
+                this._changeColumnSort(this._columns[index], value, init);
             }
             if (attribute === 'width') {
                 this._changeColumnWidth(this._columns[index], value, init);
-                this.reactToResize()
+                this.reactToResize();
             }
             if (attribute === 'hidden') {
                 this.set(`_columns.${index}._hidden`, value);
-                this.reactToResize()
+                this.reactToResize();
             }
         }
     }
 
     _getRowParts(row) {
-        let rowNames = this.getRowPartName?.(row) || '';
+        const rowNames = this.getRowPartName?.(row) || '';
         return ('row ' + rowNames).trim();
     }
 
     _getCellParts(row, column) {
-        let cellNames = this.getCellPartName?.(row, column) || '';
+        const cellNames = this.getCellPartName?.(row, column) || '';
         return ('cell ' + cellNames).trim();
     }
 
     reactToResize() {
-        if (this._columns.length == 0) {
+        if (this._columns.length === 0) {
             return;
         }
-        let colStyles = {};
-        let realColumns = this._columns.filter(x => x._isHeaderColumn == false);
-        let maxRows = Math.max(...this._columns.map(o => o.node._row), 0);
-        let columns = realColumns.map((column) => {
-            let parent = this._columns.find(x => x.index == column.node._parentIndex);
-            if((column.node.hidden && column._hidden || parent?._hidden)) {
+        const colStyles = {};
+        const realColumns = this._columns.filter(x => x._isHeaderColumn === false);
+        const maxRows = Math.max(...this._columns.map(o => o.node._row), 0);
+        const columns = realColumns.map((column) => {
+            const parent = this._columns.find(x => x.index === column.node._parentIndex);
+            if ((column.node.hidden && column._hidden) || parent?._hidden) {
                 return '0';
-            }
-            else if(column.width) {
-                return column.width + 'px'
+            } else if (column.width) {
+                return column.width + 'px';
             } else {
-                return '1fr'
+                return '1fr';
             }
         }).join(' ');
 
         this._columns.forEach((el) => {
-            let style = [];
+            const style = [];
 
-            let parent = this._columns.find(x => x.index == el.node._parentIndex);
-            if((el.node.hidden && el._hidden || parent?._hidden)) {
+            const parent = this._columns.find(x => x.index === el.node._parentIndex);
+            if ((el.node.hidden && el._hidden) || parent?._hidden) {
                 style.push(`width: 0px`);
                 style.push('display: none !important');
             } else if (el.width) {
                 style.push(`width: ${el.width}px`);
                 style.push(el.minWidth < el.with ? `min-width: ${el.minWidth}px` : `min-width: ${el.width}px`);
-            }
-            else {
+            } else {
                 style.push(`flex: 1`);
                 style.push(`min-width: ${el.minWidth}px`);
             }
@@ -680,57 +677,64 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 case 'end':
                 case 'flex-end':
                 case 'right': {
-                    style.push('text-align: end')
+                    style.push('text-align: end');
                     break;
                 }
 
                 case 'start':
                 case 'flex-start':
                 case 'left': {
-                    style.push('text-align: start')
+                    style.push('text-align: start');
                     break;
                 }
 
                 case 'center': {
-                    style.push('text-align: center')
+                    style.push('text-align: center');
                     break;
                 }
             }
 
             if (el.fixed) {
-                let left = realColumns.filter(x => x.index < el.index).map(x => x.width || x.node.offsetWidth).reduce((a, c) => { return a + c }, 0);
+                const left = realColumns
+                    .filter(x => x.index < el.index)
+                    .map(x => x.width || x.node.offsetWidth)
+                    .reduce((a, c) => { return a + c; }, 0);
                 style.push(`left: ${left}px`);
             }
 
             if (el.action) {
-                const right = realColumns.filter(x => x.index > el.index).map(x => x.width || x.node.offsetWidth).reduce((a, c) => { return a + c }, 0)
+                const right = realColumns
+                    .filter(x => x.index > el.index)
+                    .map(x => x.width || x.node.offsetWidth)
+                    .reduce((a, c) => { return a + c; }, 0);
                 style.push(`right: ${right}px`);
             }
 
-
             colStyles['.' + el.class] = style.join(';');
-            colStyles['.headerEl.' + el.class] = el._isHeaderColumn ? `grid-area: ${el.class}; border-bottom: 1px solid var(--pl-grey-light)` : `grid-area: ${el.class}`;
+            colStyles['.headerEl.' + el.class] = el._isHeaderColumn
+                ? `grid-area: ${el.class}; border-bottom: 1px solid var(--pl-grey-light)`
+                : `grid-area: ${el.class}`;
         });
 
         let classes = ``;
-        for (let cls in colStyles) {
+        for (const cls in colStyles) {
             classes += cls + `{
                 ${colStyles[cls]}
-            }  `
+            }  `;
         }
 
-        const matrix = Array.from({ 'length': maxRows }, () => Array(realColumns.length).fill(null));
-        for (let i = maxRows - 1; i != -1; i--) {
+        const matrix = Array.from({ length: maxRows }, () => Array(realColumns.length).fill(null));
+        for (let i = maxRows - 1; i !== -1; i--) {
             for (let j = 0; j < realColumns.length; j++) {
-                if (matrix[i + 1] == undefined) {
-                    let childCol = this._columns.find(x => x.index == realColumns[j].index);
+                if (matrix[i + 1] === undefined) {
+                    const childCol = this._columns.find(x => x.index === realColumns[j].index);
                     matrix[i][j] = { class: childCol.class, parentIndex: childCol.node._parentIndex };
                 } else {
-                    let el = this._columns.find(x => x.index == matrix[i + 1][j].parentIndex && x.node._row == i + 1);
+                    const el = this._columns.find(x => x.index === matrix[i + 1][j].parentIndex && x.node._row === i + 1);
                     if (el) {
-                        matrix[i][j] = { class: el.class, parentIndex: el.node._parentIndex };;
+                        matrix[i][j] = { class: el.class, parentIndex: el.node._parentIndex };
                     } else {
-                        matrix[i][j] = { class: matrix[i + 1][j].class, parentIndex: matrix[i + 1][j].parentIndex };;
+                        matrix[i][j] = { class: matrix[i + 1][j].class, parentIndex: matrix[i + 1][j].parentIndex };
                     }
                 }
             }
@@ -738,8 +742,8 @@ class PlTable extends PlResizeableMixin(PlElement) {
         const joined = matrix.map(x => x.map(y => y.class).join(' '));
         let areas = '';
         joined.forEach((el) => {
-            areas += `"${el}"`
-        })
+            areas += `"${el}"`;
+        });
 
         classes += `#header {
             grid-template-columns: ${columns};    
@@ -749,23 +753,24 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
         this.$.columnSizes.textContent = classes;
 
-
         setTimeout(() => {
-            // необходимо для отрисовки грида во вкладках, которые изнчально скрыты
+            // необходимо для отрисовки грида во вкладках, которые изначально скрыты
             this.$.scroller.render();
-            let colWidth = Array.from(this.root.querySelectorAll('.headerEl:not(.group)')).map(x => x.offsetWidth).reduce((a, c) => { return a + c }, 0); // 2 borders
+            const colWidth = Array.from(this.root.querySelectorAll('.headerEl:not(.group)'))
+                .map(x => x.offsetWidth)
+                .reduce((a, c) => { return a + c; }, 0); // 2 borders
             if (this.$.header.scrollWidth > colWidth) {
                 this.$.container.style.setProperty('--pl-action-column-position', 'absolute');
             } else {
                 this.$.container.style.setProperty('--pl-action-column-position', 'sticky');
             }
-        }, 0)
+        }, 0);
     }
 
     _init() {
         const columnsNodes = Array.from(this.querySelectorAll('pl-table-column'));
-        let row = 1;
-        let cols = columnsNodes.map((column, index) => {
+        const row = 1;
+        const cols = columnsNodes.map((column, index) => {
             const info = {
                 kind: column.kind,
                 header: column.header,
@@ -777,7 +782,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 resizable: column.resizable,
                 fixed: column.fixed || false,
                 action: column.action || false,
-                index: index,
+                index,
                 sortable: column.sortable,
                 sort: column.sort,
                 cellTemplate: column._cellTemplate,
@@ -789,17 +794,16 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 node: column
             };
 
-            if(column.sort) {
+            if (column.sort) {
                 this._changeColumnSort(column, column.sort, true);
             }
 
-            info.class = 'column-' + index
+            info.class = 'column-' + index;
 
             column._index = info.index;
-            column._parentIndex = column._parentIndex;
             column._row = column._row || row;
 
-            let childColumns = Array.from(column.querySelectorAll(':scope > pl-table-column'));
+            const childColumns = Array.from(column.querySelectorAll(':scope > pl-table-column'));
             if (childColumns.length > 0) {
                 info._isHeaderColumn = true;
                 childColumns.forEach((el) => {
@@ -811,7 +815,6 @@ class PlTable extends PlResizeableMixin(PlElement) {
             return info;
         });
 
-
         if (cols.find(x => x.footerTemplate)) {
             this.$.container.style.setProperty('--pl-footer-display', 'flex');
         }
@@ -819,11 +822,11 @@ class PlTable extends PlResizeableMixin(PlElement) {
         this._columns = cols;
         requestAnimationFrame(() => {
             this.reactToResize();
-        })
+        });
     }
 
     _filterCols(cols) {
-        return cols.filter(x => !x._isHeaderColumn)
+        return cols.filter(x => !x._isHeaderColumn);
     }
 
     _isRowActive(row, selected) {
@@ -831,21 +834,21 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     _changeColumnSort(column, sort, init) {
-        let sorts = [...this.data.sorts] || [];
+        const sorts = [...this.data.sorts || []];
         const ind = sorts.findIndex(item => item.field === column.field);
         if (ind >= 0) {
             sorts.splice(ind, 1);
         }
 
-        let newSort = {
+        const newSort = {
             field: column.field,
-            sort: sort
+            sort
         };
 
         sorts.splice(0, 0, newSort);
 
         // если сортировка была указана в гриде, то выставляем ее по-тихому, без уведомления о мутации
-        // иначе по клику на сортировку вызываем мутацию и перезагружаем датасет 
+        // иначе по клику на сортировку вызываем мутацию и перезагружаем датасет
         if (init) {
             this.data.sorts = sorts;
         } else {
@@ -863,16 +866,16 @@ class PlTable extends PlResizeableMixin(PlElement) {
         return `column-${index}`;
     }
 
-    async beforeSelect(model) {
+    async beforeSelect() {
         return true;
     }
 
     _itemSelected(item, selectedList) {
-        return this.multiSelect && selectedList.filter(x => x == item).length > 0;
+        return this.multiSelect && selectedList.filter(x => x === item).length > 0;
     }
 
     async _onRowClick(event) {
-        if(event.model.row instanceof PlaceHolder) { return }
+        if (event.model.row instanceof PlaceHolder) return;
 
         const res = await this.beforeSelect(event.model.row);
         if (!res) {
@@ -885,7 +888,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             this.selected = event.model.row;
         }
 
-        this.dispatchEvent(new CustomEvent('rowClick', { detail: { model: this.selected } }))
+        this.dispatchEvent(new CustomEvent('rowClick', { detail: { model: this.selected } }));
     }
 
     _onRowDblClick(event) {
@@ -904,7 +907,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         if (event.model.row._haschildren === false) {
             return;
         }
-        let idx = this.data.indexOf(event.model.row);
+        const idx = this.data.indexOf(event.model.row);
         this.set(`data.${idx}._opened`, !event.model.row._opened);
     }
 
@@ -931,7 +934,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         if (this.tree) {
             const parents = [];
 
-            while (val._pitem != null) {
+            while (val._pitem) {
                 val = val._pitem;
                 parents.push(val);
             }
@@ -941,13 +944,14 @@ class PlTable extends PlResizeableMixin(PlElement) {
                     const idx = this.data.indexOf(el);
                     this.set(`data.${idx}._opened`, true);
                 }
-            })
+            });
         }
 
-        if (mutation.path != 'selected') {
+        if (mutation.path !== 'selected') {
             this.forwardNotify(mutation, `selected`, `data.${this.data.indexOf(this.selected)}`);
         }
     }
+
     _treeModeChange() {
         if (this.data.control && this.tree) {
             this.data.control.treeMode = {
@@ -962,8 +966,8 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     _onSelect(event) {
-        let idx = this.selectedList.indexOf(event.model.row);
-        if (idx == -1) {
+        const idx = this.selectedList.indexOf(event.model.row);
+        if (idx === -1) {
             this.push('selectedList', event.model.row);
         } else {
             this.splice('selectedList', idx, 1);
