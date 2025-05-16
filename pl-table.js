@@ -444,7 +444,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
         const observer = new MutationObserver(throttle(() => {
             this._init();
-        }), 15);
+        }, 15));
 
         observer.observe(this, { attributes: false, childList: true, subtree: true });
 
@@ -510,8 +510,6 @@ class PlTable extends PlResizeableMixin(PlElement) {
             sort = 'asc';
         } else if (event.model.column.sort === 'asc') {
             sort = 'desc';
-        } else {
-            sort = '';
         }
 
         this.set(`_columns.${event.model.column.index}.sort`, sort);
