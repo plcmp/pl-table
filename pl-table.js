@@ -250,13 +250,14 @@ class PlTable extends PlResizeableMixin(PlElement) {
             overflow: hidden;
         }
 
-        .cell.headerEl > .header-el-container {
+        .cell.headerEl *{
             overflow: initial;
         }
 
         .row[loading] {
             cursor: wait;
         }
+        
         .row[loading] .cell {
             background: var(--background-color);
             pointer-events: none;
