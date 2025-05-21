@@ -1,7 +1,6 @@
 {
     "name": "@plcmp/pl-table",
-
-    "version": "0.1.40",
+    "version": "1.0.0",
     "description": "Simple table component.",
     "main": "pl-grid.js",
     "repository": {

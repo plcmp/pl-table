@@ -539,6 +539,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         const moveHandler = throttle((event) => {
             width = Math.max(minWidth, _resizeBase.baseSize + (event.screenX - _resizeBase.baseMoveOffset));
             this._changeColumnWidth(this._columns[columnIdx], width);
+            this.reactToResize();
         }, 20);
 
         const removeHandlers = () => {
