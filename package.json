@@ -2,7 +2,7 @@
     "name": "@plcmp/pl-table",
     "version": "1.0.0",
     "description": "Simple table component.",
-    "main": "pl-grid.js",
+    "main": "pl-table.js",
     "repository": {
         "url": "https://github.com/plcmp/pl-table.git"
     },
