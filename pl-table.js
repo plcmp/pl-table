@@ -27,7 +27,8 @@ class PlTable extends PlResizeableMixin(PlElement) {
         getRowPartName: { type: Function, value: () => { } },
         getCellPartName: { type: Function, value: () => { } },
         variableRowHeight: { type: Boolean, value: false, observer: '_variableRowHeightObserver' },
-        growing: { type: Boolean, value: false, observer: '_growingObserver' }
+        growing: { type: Boolean, value: false, observer: '_growingObserver' },
+        customRowTemplate: { type: Object, observer: '_customRowTemplateObserver' }
     };
 
     static css = css`
@@ -997,6 +998,10 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
     _isPlaceholder(row) {
         return row instanceof PlaceHolder;
+    }
+
+    _customRowTemplateObserver(customRowTemplate) {
+        if (customRowTemplate) this.$.scroller.sTpl = customRowTemplate;
     }
 }
 
