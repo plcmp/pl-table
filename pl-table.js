@@ -123,8 +123,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             text-align: left;
             align-items: flex-start;
             padding: var(--pl-space-sm);
-            font: var(--pl-header-font);
-            color: var(--pl-header-color);
+            color: var(--text-secondary-black);
             display: flex;
             flex-direction: column;
             gap: var(--pl-space-sm);
@@ -225,6 +224,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         }
 
         .cell {
+            padding: var(--pl-space-xs) var(--pl-space-sm);
             display: flex;
             align-items: var(--pl-table-cell-align-items, center);
             background-color: inherit;
@@ -233,10 +233,11 @@ class PlTable extends PlResizeableMixin(PlElement) {
             height: var(--pl-table-cell-height, var(--pl-base-size));
             white-space: var(--pl-table-cell-white-space, nowrap);
             position: relative;
+            font-size: var(--text-medium-size);
+            line-height: var(--text-medium-heigth);
         }
 
         .cell-content {
-            padding: 0 var(--pl-space-sm);
             width: 100%;
             box-sizing: border-box;
         }
@@ -319,7 +320,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
         .row[active]{
             z-index: 1;
-         }
+        }
 
         .top-toolbar ::slotted(*) {
             width: 100%;
@@ -467,7 +468,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         if (val) {
             this.$.container.style.setProperty('--pl-table-cell-height', 'auto');
             this.$.container.style.setProperty('--pl-table-cell-white-space', 'normal');
-            this.$.container.style.setProperty('--pl-table-cell-align-items', 'flex-start');
+            this.$.container.style.setProperty('--pl-table-cell-align-items', 'center');
         }
     }
 
