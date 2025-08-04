@@ -123,7 +123,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             text-align: left;
             align-items: flex-start;
             padding: var(--pl-space-sm);
-            color: var(--text-secondary-black);
+            color: #5B6269;
             display: flex;
             flex-direction: column;
             gap: var(--pl-space-sm);
@@ -233,8 +233,8 @@ class PlTable extends PlResizeableMixin(PlElement) {
             height: var(--pl-table-cell-height, var(--pl-base-size));
             white-space: var(--pl-table-cell-white-space, nowrap);
             position: relative;
-            font-size: var(--text-medium-size);
-            line-height: var(--text-medium-heigth);
+            font-size: 12px;
+            line-height: 16px;
         }
 
         .cell-content {
