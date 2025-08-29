@@ -235,6 +235,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             position: relative;
             font-size: var(--text-medium-size);
             line-height: var(--text-medium-heigth);
+            overflow: hidden;
         }
 
         .cell-content {
