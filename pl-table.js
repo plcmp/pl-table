@@ -68,7 +68,6 @@ class PlTable extends PlResizeableMixin(PlElement) {
             width: 100%;
             background-color: var(--pl-grey-lightest);
             z-index: 2;
-            bottom: 0;
             position: var(--pl-footer-container-position, absolute);
         }
 
@@ -305,6 +304,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             border-inline-end: 1px solid transparent;
             z-index:1;
             min-height: 100%;
+            padding: 6px 8px;
         }
 
         .cell[hidden] {
@@ -435,7 +435,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         headerResizeObserver.observe(this.$.header);
 
         const containerResizeObserver = new ResizeObserver(throttle(() => {
-            if (this.$.container.scrollHeight <= this.$.container.offsetHeight) {
+            if (this.$.container.scrollHeight < this.$.container.offsetHeight) {
                 this.$.container.style.setProperty('--pl-footer-container-position', 'absolute');
             } else {
                 this.$.container.style.setProperty('--pl-footer-container-position', 'sticky');
