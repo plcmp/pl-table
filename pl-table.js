@@ -28,7 +28,10 @@ class PlTable extends PlResizeableMixin(PlElement) {
         getCellPartName: { type: Function, value: () => { } },
         variableRowHeight: { type: Boolean, value: false, observer: '_variableRowHeightObserver' },
         growing: { type: Boolean, value: false, observer: '_growingObserver' },
-        customRowTemplate: { type: Object, observer: '_customRowTemplateObserver' }
+        customRowTemplate: { type: Object, observer: '_customRowTemplateObserver' },
+        refreshing: { type: Boolean, value: false, observer: '_observeRefreshing' },
+        skeletonHeight: { type: String, observer: '_skeletonHeightObserver' },
+        _dummy10: { type: Array, value: () => Array.from({ length: 15 }, () => ({})) }
     };
 
     static css = css`
@@ -264,13 +267,14 @@ class PlTable extends PlResizeableMixin(PlElement) {
         .row[loading] .cell {
             background: var(--background-color);
             pointer-events: none;
+            min-height: var(--pl-skeleton-height, 28px);
             padding: 0;
         }
 
         .row[loading] .cell::after {
-            width: 100%;
-            height: calc(100% - 16px);
-            margin: 16px 8px;
+            width: calc(100% - 16px);
+            height: calc(var(--pl-skeleton-height, 44px) - 16px);
+            margin: 8px 8px;
             display: flex;
             content:'';
             border-radius: var(--pl-border-radius);
@@ -350,6 +354,39 @@ class PlTable extends PlResizeableMixin(PlElement) {
             color: var(--pl-grey-dark);
             margin-inline-end: 4px;
         }
+
+        #container:not(.loading) pl-virtual-scroll {
+            display: block;
+        }
+        #container.mask-loading .row .cell > * {
+            opacity: 0;
+        }
+
+        .Loading {
+            display: none;
+            flex-direction: column;
+        }
+
+        #container.loading .Loading {
+            display: flex;
+        }
+
+        .Loading .cell {
+            padding: 0;
+            min-height: var(--pl-skeleton-height, 28px);  
+        }
+
+        .Loading .cell-content {
+            width: calc(100% - 16px);
+            height: calc(var(--pl-skeleton-height, 44px) - 16px);
+            margin: 8px 8px;
+            display: block;
+            border-radius: var(--pl-border-radius);
+            background: var(--pl-grey-light);
+            animation: skeleton 1s ease-in-out forwards infinite;
+            animation-direction: alternate;
+        }
+
     `;
 
     static checkboxCellTemplate = `<pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
@@ -381,9 +418,18 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 </div>
             </div>
             <div id="rowsContainer" part="rows">
+                <div class="Loading">
+                    <div class="row" d:repeat="[[_dummy10]]">
+                        <template d:repeat="[[_filterCols(_columns)]]" d:as="column">
+                            <div class$="[[_getCellClass(column, 'cell')]]" hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" action$="[[column.action]]">
+                                <div class="cell-content"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
                 <pl-virtual-scroll canvas="[[$.rowsContainer]]" items="{{_vdata}}" as="row" id="scroller" variable-row-height=[[variableRowHeight]]>
                     <template id="tplRow">
-                        <div part$="[[_getRowParts(row)]]" class="row" loading$="[[_isPlaceholder(row)]]" active$="[[_isRowActive(row, selected)]]" on-click="[[_onRowClick]]" on-dblclick="[[_onRowDblClick]]">
+                        <div part$="[[_getRowParts(row)]]" class="row" loading$="[[_rowLoading(row, refreshing)]]" active$="[[_isRowActive(row, selected)]]" on-click="[[_onRowClick]]" on-dblclick="[[_onRowDblClick]]">
                             <template d:repeat="[[_filterCols(_columns)]]" d:as="column">
                                 <div part$="[[_getCellParts(row, column)]]" class$="[[_getCellClass(column, 'cell')]]" hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" action$="[[column.action]]" title$="[[_getTitle(row, column)]]">
                                     [[getTemplateForCell(tree, multiSelect, column.index)]]
@@ -470,7 +516,14 @@ class PlTable extends PlResizeableMixin(PlElement) {
             this.$.container.style.setProperty('--pl-table-cell-height', 'auto');
             this.$.container.style.setProperty('--pl-table-cell-white-space', 'normal');
             this.$.container.style.setProperty('--pl-table-cell-align-items', 'center');
+            this.$.container.style.setProperty('--pl-skeleton-height', this.skeletonHeight || '28px');
+            this.$.scroller.render();
         }
+    }
+
+    _skeletonHeightObserver(val) {
+        this.$.container.style.setProperty('--pl-skeleton-height', val);
+        this.$.scroller.render();
     }
 
     _getTitle(row, column) {
@@ -564,6 +617,10 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     _dataObserver(_data, _old, mut) {
+        if (mut.path === 'data.control.refreshing') {
+            this.refreshing = _data.control.refreshing;
+        }
+
         if (mut.action === 'splice' && mut.path === 'data') {
             if (mut?.deleted?.includes(this.selected)) {
                 this.selected = null;
@@ -576,6 +633,19 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 this.forwardNotify(mut, `data.${m[1]}`, 'selected');
             }
         }
+    }
+
+    _observeRefreshing(refreshing) {
+        if (refreshing) {
+            if (!this._vdata || this._vdata.length === 0) this.$.container.classList.add('loading');
+        } else {
+            this.$.container.classList.remove('loading');
+            this.$.scroller.render();
+        }
+    }
+
+    _rowLoading(row, refreshing) {
+        return refreshing || row instanceof PlaceHolder;
     }
 
     _getHeaderStyle(col) {
