@@ -127,6 +127,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             display: flex;
             flex-direction: column;
             gap: var(--pl-space-sm);
+            overflow: initial;
         }
 
         .cell.headerEl.group {
