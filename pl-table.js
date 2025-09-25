@@ -316,7 +316,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         .row:not([loading]):hover .cell,
         .row[active], 
         .row[active] .cell{
-            background-color: var(--pl-primary-lightest);
+            background-color: var(--pl-grid-hover-color, var(--background-browser-tabs-green));
             color: var(--pl-text-color);
         }
 
