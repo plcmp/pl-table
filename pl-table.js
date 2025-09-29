@@ -355,28 +355,29 @@ class PlTable extends PlResizeableMixin(PlElement) {
             margin-inline-end: 4px;
         }
 
-        #container:not(.loading) pl-virtual-scroll {
-            display: block;
-        }
-        #container.mask-loading .row .cell > * {
-            opacity: 0;
-        }
-
-        .Loading {
+        .skeleton-container {
             display: none;
             flex-direction: column;
         }
 
-        #container.loading .Loading {
+        #container.loading .skeleton-container {
             display: flex;
         }
 
-        .Loading .cell {
+        #container.loading .row .cell > * {
+            opacity: 0;
+        }
+
+        #container:not(.loading) pl-virtual-scroll {
+            display: block;
+        }
+
+        .skeleton-container .cell {
             padding: 0;
             min-height: var(--pl-skeleton-height, 28px);  
         }
 
-        .Loading .cell-content {
+        .skeleton-container .cell-content {
             width: calc(100% - 16px);
             height: calc(var(--pl-skeleton-height, 44px) - 16px);
             margin: 8px 8px;
@@ -418,7 +419,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 </div>
             </div>
             <div id="rowsContainer" part="rows">
-                <div class="Loading">
+                <div class="skeleton-container">
                     <div class="row" d:repeat="[[_dummy10]]">
                         <template d:repeat="[[_filterCols(_columns)]]" d:as="column">
                             <div class$="[[_getCellClass(column, 'cell')]]" hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" action$="[[column.action]]">
