@@ -479,7 +479,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             if (column.titleField) {
                 return this.getByPath(row, column.titleField);
             } else {
-                return this._getValue(row, column.field, column.kind, column.format);
+                return this._getValue(row, column.field, column.kind, column.format) ?? '';
             }
         }
     }
