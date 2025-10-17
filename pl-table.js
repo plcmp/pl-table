@@ -253,7 +253,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             overflow: hidden;
         }
 
-        .cell.headerEl *{
+        .cell.headerEl *:not(.header-text){
             overflow: initial;
         }
 
