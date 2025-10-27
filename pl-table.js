@@ -433,7 +433,10 @@ class PlTable extends PlResizeableMixin(PlElement) {
                     <template id="tplRow">
                         <div part$="[[_getRowParts(row)]]" class="row" loading$="[[_rowLoading(row, refreshing)]]" active$="[[_isRowActive(row, selected)]]" on-click="[[_onRowClick]]" on-dblclick="[[_onRowDblClick]]">
                             <template d:repeat="[[_filterCols(_columns)]]" d:as="column">
-                                <div part$="[[_getCellParts(row, column)]]" class$="[[_getCellClass(column, 'cell')]]" hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" action$="[[column.action]]" title$="[[_getTitle(row, column)]]">
+                                <div part$="[[_getCellParts(row, column)]]" class$="[[_getCellClass(column, 'cell')]]" 
+                                     hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" 
+                                     action$="[[column.action]]" title$="[[_getTitle(row, column)]]"
+                                     on-mouseenter="[[onCellMouseEnter]]">
                                     [[getTemplateForCell(tree, multiSelect, column.index)]]
                                     [[column.cellTemplate]]
                                     <span class="column-resizer" hidden$="[[!column.resizable]]" on-mousedown="[[onResize]]"></span>
@@ -456,6 +459,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         <div class="bottom-toolbar">
             <slot name="bottom-toolbar"></slot>
         </div>
+        <div><slot></slot></div>
         <pl-data-tree bypass="[[!tree]]" key-field="[[keyField]]" pkey-field="[[pkeyField]]" has-child-field="[[hasChildField]]" in="{{data}}" out="{{_vdata}}"></pl-data-tree>
     `;
 
@@ -1076,6 +1080,10 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
     _customRowTemplateObserver(customRowTemplate) {
         if (customRowTemplate) this.$.scroller.sTpl = customRowTemplate;
+    }
+
+    onCellMouseEnter(event) {
+        event.target._item.column.node._tooltip?.onMouseEnter(event, event.target._item._ti.ctx);
     }
 }
 
