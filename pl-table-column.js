@@ -197,7 +197,8 @@ class PlTableColumn extends PlElement {
         }
         if (tooltipTpl) {
             this._tooltip = createTooltip(tooltipTpl._tpl);
-            this.shadowRoot.appendChild(this._tooltip);
+            this._tooltip.keepHover = Boolean(tooltipTpl._tpl.tpl.attributes['keep-hover']);
+            this.parentNode.shadowRoot.appendChild(this._tooltip);
         }
 
         const cellTpl = tplEls.find(tplEl => !tplEl._tpl.tpl.hasAttribute('is'));
