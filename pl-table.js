@@ -435,7 +435,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                             <template d:repeat="[[_filterCols(_columns)]]" d:as="column">
                                 <div part$="[[_getCellParts(row, column)]]" class$="[[_getCellClass(column, 'cell')]]" 
                                      hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" 
-                                     action$="[[column.action]]" title$="[[_getTitle(row, column)]]"
+                                     action$="[[column.action]]"
                                      on-mouseenter="[[onCellMouseEnter]]">
                                     [[getTemplateForCell(tree, multiSelect, column.index)]]
                                     [[column.cellTemplate]]
@@ -532,10 +532,10 @@ class PlTable extends PlResizeableMixin(PlElement) {
         this.$.scroller.render();
     }
 
-    _getTitle(row, column) {
+    _getTooltipText(row, column) {
         if (row) {
-            if (column.titleField) {
-                return this.getByPath(row, column.titleField);
+            if (column.tooltipField && column.tooltipField !== '') {
+                return this.getByPath(row, column.tooltipField);
             } else {
                 return this._getValue(row, column.field, column.kind, column.format) ?? '';
             }

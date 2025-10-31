@@ -14,7 +14,7 @@ class PlTableColumn extends PlElement {
         minWidth: { type: Number, value: 50 },
 
         field: { type: String },
-        titleField: { type: String },
+        tooltipField: { type: String },
 
         headerAlign: { type: String, value: 'left' },
         align: { type: String, value: 'left' },
@@ -148,9 +148,9 @@ class PlTableColumn extends PlElement {
             this._filterTemplate = filterTpl?._tpl;
             this._filterTemplate._hctx = [...filterTpl._hctx, this];
         }
-        if (tooltipTpl) {
-            this._tooltip = createTooltip(tooltipTpl._tpl);
-            this._tooltip.keepHover = Boolean(tooltipTpl._tpl.tpl.attributes['keep-hover']);
+        if (tooltipTpl || this.tooltipField !== undefined) {
+            this._tooltip = createTooltip(tooltipTpl?._tpl ?? html`[[_getTooltipText(row, column)]]`);
+            this._tooltip.keepHover = Boolean(tooltipTpl?._tpl.tpl.attributes['keep-hover']);
             this.parentNode.shadowRoot.appendChild(this._tooltip);
         }
 
@@ -212,16 +212,6 @@ class PlTableColumn extends PlElement {
             },
             bubbles: true
         }));
-    }
-
-    _getTitle(row, field, kind, format, titleField) {
-        if (row) {
-            if (titleField) {
-                return this.getByPath(row, titleField);
-            } else {
-                return this._getValue(row, field, kind, format);
-            }
-        }
     }
 
     _getValue(row, field, kind, format) {
