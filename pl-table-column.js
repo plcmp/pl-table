@@ -9,78 +9,31 @@ class PlTableColumn extends PlElement {
     _tooltip;
 
     static properties = {
-        header: {
-            type: String
-        },
-        width: {
-            type: Number
-        },
-        minWidth: {
-            type: Number,
-            value: 50
-        },
-        field: {
-            type: String
-        },
-        titleField: {
-            type: String
-        },
-        headerAlign: {
-            type: String,
-            value: 'left'
-        },
-        align: {
-            type: String,
-            value: 'left'
-        },
-        hidden: {
-            type: Boolean,
-            observer: 'hiddenChanged'
-        },
-        kind: {
-            type: String
-        },
-        format: {
-            type: String
-        },
-        resizable: {
-            type: Boolean,
-            reflectToAttribute: true
-        },
-        sortable: {
-            type: Boolean
-        },
-        _calculatedWidth: {
-            type: String
-        },
-        sort: {
-            type: String,
-            observer: 'sortChanged'
-        },
-        fixed: {
-            type: Boolean
-        },
-        action: {
-            type: Boolean
-        },
-        _index: {
-            type: Number
-        },
-        _template: {
-            type: Object
-        },
-        _cellTemplate: {
-            type: Object
-        },
-        _headerTemplate: {
-            type: Object
-        },
-        _footerTemplate: {
-            type: Object
-        },
-        _filterTemplate: {
-            type: Object
-        }
+        header: { type: String },
+        width: { type: Number },
+        minWidth: { type: Number, value: 50 },
+
+        field: { type: String },
+        titleField: { type: String },
+
+        headerAlign: { type: String, value: 'left' },
+        align: { type: String, value: 'left' },
+        hidden: { type: Boolean, observer: 'observeHiddenChanged' },
+        kind: { type: String },
+        format: { type: String },
+        resizable: { type: Boolean, reflectToAttribute: true },
+        sortable: { type: Boolean },
+        _calculatedWidth: { type: String },
+        sort: { type: String, observer: 'observeSortChanged' },
+        fixed: { type: Boolean },
+        action: { type: Boolean },
+
+        _index: { type: Number },
+        _template: { type: Object },
+        _cellTemplate: { type: Object },
+        _headerTemplate: { type: Object },
+        _footerTemplate: { type: Object },
+        _filterTemplate: { type: Object }
     };
 
     static css = css`
@@ -232,8 +185,7 @@ class PlTableColumn extends PlElement {
             this.sort = 'asc';
         } else if (this.sort === 'asc') {
             this.sort = 'desc';
-        }
-        else {
+        } else {
             this.sort = '';
         }
     }
@@ -264,10 +216,9 @@ class PlTableColumn extends PlElement {
 
     _getTitle(row, field, kind, format, titleField) {
         if (row) {
-            if(titleField) {
+            if (titleField) {
                 return this.getByPath(row, titleField);
-            }
-            else {
+            } else {
                 return this._getValue(row, field, kind, format);
             }
         }
