@@ -459,7 +459,6 @@ class PlTable extends PlResizeableMixin(PlElement) {
         <div class="bottom-toolbar">
             <slot name="bottom-toolbar"></slot>
         </div>
-        <div><slot></slot></div>
         <pl-data-tree bypass="[[!tree]]" key-field="[[keyField]]" pkey-field="[[pkeyField]]" has-child-field="[[hasChildField]]" in="{{data}}" out="{{_vdata}}"></pl-data-tree>
     `;
 
