@@ -1,83 +1,40 @@
-import { PlElement, html, css } from "polylib";
-import "@plcmp/pl-icon";
-import "@plcmp/pl-iconset-default";
+import { PlElement, html, css } from 'polylib';
+import '@plcmp/pl-icon';
+import '@plcmp/pl-iconset-default';
 import dayjs from 'dayjs/esm/index.js';
+import { createTooltip } from '@plcmp/pl-tooltip';
 
 class PlTableColumn extends PlElement {
+    /** @type ?PlTooltip */
+    _tooltip;
+
     static properties = {
-        header: {
-            type: String
-        },
-        width: {
-            type: Number
-        },
-        minWidth: {
-            type: Number,
-            value: 50
-        },
-        field: {
-            type: String
-        },
-        titleField: {
-            type: String
-        },
-        headerAlign: {
-            type: String,
-            value: 'left'
-        },
-        align: {
-            type: String,
-            value: 'left'
-        },
-        hidden: {
-            type: Boolean,
-            observer: 'hiddenChanged'
-        },
-        kind: {
-            type: String
-        },
-        format: {
-            type: String
-        },
-        resizable: {
-            type: Boolean,
-            reflectToAttribute: true
-        },
-        sortable: {
-            type: Boolean
-        },
-        _calculatedWidth: {
-            type: String
-        },
-        sort: {
-            type: String,
-            observer: 'sortChanged'
-        },
-        fixed: {
-            type: Boolean
-        },
-        action: {
-            type: Boolean
-        },
-        _index: {
-            type: Number
-        },
-        _template: {
-            type: Object
-        },
-        _cellTemplate: {
-            type: Object
-        },
-        _headerTemplate: {
-            type: Object
-        },
-        _footerTemplate: {
-            type: Object
-        },
-        _filterTemplate: {
-            type: Object
-        }
-    }
+        header: { type: String },
+        width: { type: Number },
+        minWidth: { type: Number, value: 50 },
+
+        field: { type: String },
+        tooltipField: { type: String },
+
+        headerAlign: { type: String, value: 'left' },
+        align: { type: String, value: 'left' },
+        hidden: { type: Boolean, observer: 'observeHiddenChanged' },
+        kind: { type: String },
+        format: { type: String },
+        resizable: { type: Boolean, reflectToAttribute: true },
+        sortable: { type: Boolean },
+        _calculatedWidth: { type: String },
+        sort: { type: String, observer: 'observeSortChanged' },
+        fixed: { type: Boolean },
+        action: { type: Boolean },
+
+        _index: { type: Number },
+        _template: { type: Object },
+        _cellTemplate: { type: Object },
+        _headerTemplate: { type: Object },
+        _footerTemplate: { type: Object },
+        _filterTemplate: { type: Object }
+    };
 
     static css = css`
         :host{
@@ -173,34 +130,39 @@ class PlTableColumn extends PlElement {
 
     connectedCallback() {
         super.connectedCallback();
-        let tplEls = [...this.childNodes].filter(n => n.nodeType === document.COMMENT_NODE && n.textContent.startsWith('tpl:'));
-        let footerTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') == 'footer');
-        let filterTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') == 'filter');
-        let headerTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') == 'header');
+        const tplEls = [...this.childNodes].filter(n => n.nodeType === document.COMMENT_NODE && n.textContent.startsWith('tpl:'));
+        const footerTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') === 'footer');
+        const filterTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') === 'filter');
+        const headerTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') === 'header');
+        const tooltipTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') === 'tooltip');
 
-        if(headerTpl) {
+        if (headerTpl) {
             this._headerTemplate = headerTpl?._tpl;
             this._headerTemplate._hctx = [...headerTpl._hctx, this];
         }
-        if(footerTpl) {
+        if (footerTpl) {
             this._footerTemplate = footerTpl?._tpl;
             this._footerTemplate._hctx = [...footerTpl._hctx, this];
         }
-        if(filterTpl) {
+        if (filterTpl) {
             this._filterTemplate = filterTpl?._tpl;
             this._filterTemplate._hctx = [...filterTpl._hctx, this];
         }
-        let cellTpl = tplEls.find(tplEl => !tplEl._tpl.tpl.hasAttribute('is'));
-        if(cellTpl) {
+        if (tooltipTpl || this.tooltipField !== undefined) {
+            this._tooltip = createTooltip(tooltipTpl?._tpl ?? html`[[_getTooltipText(row, column)]]`);
+            this._tooltip.keepHover = Boolean(tooltipTpl?._tpl.tpl.attributes['keep-hover']);
+            this.parentNode.shadowRoot.appendChild(this._tooltip);
+        }
+
+        const cellTpl = tplEls.find(tplEl => !tplEl._tpl.tpl.hasAttribute('is'));
+        if (cellTpl) {
             this._cellTemplate = cellTpl?._tpl;
             this._cellTemplate._hctx = [...cellTpl._hctx, this];
-        }
-        else {
+        } else {
             this._cellTemplate = html`<span class="cell-content" >[[_getValue(row, field, kind, format)]]</span>`;
             this._cellTemplate._hctx = [this];
         }
     }
-
 
     _getSortIcon() {
         let icon = 'sort';
@@ -217,16 +179,17 @@ class PlTableColumn extends PlElement {
 
         return icon;
     }
+
     _onSortClick() {
         if (!this.sort) {
             this.sort = 'asc';
         } else if (this.sort === 'asc') {
             this.sort = 'desc';
-        }
-        else {
+        } else {
             this.sort = '';
         }
     }
+
     sortChanged(val, old, mut) {
         this.dispatchEvent(new CustomEvent('column-attribute-change', {
             detail: {
@@ -251,17 +214,6 @@ class PlTableColumn extends PlElement {
         }));
     }
 
-    _getTitle(row, field, kind, format, titleField) {
-        if (row) {
-            if(titleField) {
-                return this.getByPath(row, titleField);
-            }
-            else {
-                return this._getValue(row, field, kind, format);
-            }
-        }
-    }
-
     _getValue(row, field, kind, format) {
         if (row) {
             if (kind === 'date' && row[field]) {
@@ -270,9 +222,9 @@ class PlTableColumn extends PlElement {
             return this.getByPath(row, field);
         }
     }
-    
+
     getByPath(object, path, delimiter = '.') {
-        if(path == undefined) return '';
+        if (path === undefined) return '';
         path = path.split(delimiter);
         let i;
         for (i = 0; i < path.length - 1; i++) {
