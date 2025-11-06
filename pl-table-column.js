@@ -151,7 +151,15 @@ class PlTableColumn extends PlElement {
         if (tooltipTpl || this.tooltipField !== undefined) {
             this._tooltip = createTooltip(tooltipTpl?._tpl ?? html`[[_getTooltipText(row, column)]]`);
             this._tooltip.keepHover = Boolean(tooltipTpl?._tpl.tpl.attributes['keep-hover']);
-            this.parentNode.shadowRoot.appendChild(this._tooltip);
+
+            // search pl-table element
+            let node = this.parentNode;
+            while (node && node.localName !== 'pl-table') {
+                node = node.parentNode;
+            }
+            if (node?.localName === 'pl-table') {
+                node.shadowRoot.appendChild(this._tooltip);
+            }
         }
 
         const cellTpl = tplEls.find(tplEl => !tplEl._tpl.tpl.hasAttribute('is'));
