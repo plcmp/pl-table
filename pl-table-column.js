@@ -149,7 +149,7 @@ class PlTableColumn extends PlElement {
             this._filterTemplate._hctx = [...filterTpl._hctx, this];
         }
         if (tooltipTpl || this.tooltipField !== undefined) {
-            this._tooltip = createTooltip(tooltipTpl?._tpl ?? html`[[_getTooltipText(row, column)]]`);
+            this._tooltip = createTooltip(tooltipTpl?._tpl ?? html`[[_getTooltipText(row, column)]]`, tooltipTpl?._hctx);
             this._tooltip.keepHover = Boolean(tooltipTpl?._tpl.tpl.attributes['keep-hover']);
 
             // search pl-table element

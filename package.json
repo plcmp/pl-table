@@ -30,6 +30,6 @@
         "@plcmp/pl-icon": "^0.1.6",
         "@plcmp/pl-iconset-default": "^0.1.5",
         "@plcmp/pl-data-tree": "^0.1.17",
-        "@plcmp/pl-tooltip": "^1.0.0"
+        "@plcmp/pl-tooltip": "^1.0.1"
     }
 }
