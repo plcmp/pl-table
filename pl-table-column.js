@@ -18,13 +18,13 @@ class PlTableColumn extends PlElement {
 
         headerAlign: { type: String, value: 'left' },
         align: { type: String, value: 'left' },
-        hidden: { type: Boolean, observer: 'observeHiddenChanged' },
+        hidden: { type: Boolean, observer: 'hiddenChanged' },
         kind: { type: String },
         format: { type: String },
         resizable: { type: Boolean, reflectToAttribute: true },
         sortable: { type: Boolean },
         _calculatedWidth: { type: String },
-        sort: { type: String, observer: 'observeSortChanged' },
+        sort: { type: String, observer: 'sortChanged' },
         fixed: { type: Boolean },
         action: { type: Boolean },
 
