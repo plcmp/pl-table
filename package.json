@@ -1,6 +1,6 @@
 {
     "name": "@plcmp/pl-table",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "description": "Simple table component.",
     "main": "pl-table.js",
     "repository": {
