@@ -431,7 +431,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 </div>
                 <pl-virtual-scroll canvas="[[$.rowsContainer]]" items="{{_vdata}}" as="row" id="scroller" variable-row-height=[[variableRowHeight]]>
                     <template id="tplRow">
-                        <div part$="[[_getRowParts(row)]]" class="row" loading$="[[_rowLoading(row, refreshing)]]" active$="[[_isRowActive(row, selected)]]" on-click="[[_onRowClick]]" on-dblclick="[[_onRowDblClick]]">
+                        <div part$="[[_getRowParts(row)]]" class="row" loading$="[[_rowLoading(row, refreshing)]]" active$="[[_isRowActive(row, selected)]]" on-click="[[_onRowClick]]" on-dblclick="[[_onRowDblClick]]" on-contextmenu="[[_onRowContextMenu]]">
                             <template d:repeat="[[_filterCols(_columns)]]" d:as="column">
                                 <div part$="[[_getCellParts(row, column)]]" class$="[[_getCellClass(column, 'cell')]]" 
                                      hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" 
@@ -987,6 +987,18 @@ class PlTable extends PlResizeableMixin(PlElement) {
         }
         const idx = this.data.indexOf(event.model.row);
         this.set(`data.${idx}._opened`, !event.model.row._opened);
+    }
+
+    _onRowContextMenu(event) {
+        if (event.model?.row instanceof PlaceHolder) return;
+
+        const customEvent = new CustomEvent('rowContextMenu', { cancelable: true });
+        customEvent.model = event.model;
+        customEvent.originalEvent = event;
+
+        this.dispatchEvent(customEvent);
+
+        if (customEvent.defaultPrevented) event.preventDefault();
     }
 
     _getRowMargin(row, index) {
