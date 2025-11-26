@@ -392,7 +392,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
     `;
 
     static checkboxCellTemplate = `<pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
-    static treeFirstCellTemplate = `<pl-icon-button style$="[[_getRowMargin(row, column.index)]]" part="[[_getRowPart(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>`;
+    static treeFirstCellTemplate = `<pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>`;
 
     static template = html`
         <style id="columnSizes"></style>
@@ -1006,13 +1006,6 @@ class PlTable extends PlResizeableMixin(PlElement) {
             return `margin-left: ${row._level * 16 + 'px'}`;
         }
         return 'display:none;';
-    }
-
-    _getRowPart(row, index) {
-        if (index === 0 && (this.tree)) {
-            return `arrow-level-${row.rowLevel}`;
-        }
-        return '';
     }
 
     _getTreeIcon(row) {
