@@ -344,10 +344,11 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
         .multi-checkbox {
             height: var(--pl-base-size);
-            width: var(--pl-base-size);
+            min-width: var(--pl-base-size);
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .column-sort {
