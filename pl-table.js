@@ -17,12 +17,14 @@ class PlTable extends PlResizeableMixin(PlElement) {
         data: { type: Array, value: () => [], observer: '_dataObserver' },
         selected: { type: Object, value: () => null, observer: '_selectedObserver' },
         tree: { type: Boolean, observer: '_treeModeChange' },
+        treeColumn: { type: Number, value: 0 },
         _vdata: { type: Array, value: () => [] },
         _columns: { type: Array, value: () => [] },
         keyField: { type: String },
         pkeyField: { type: String },
         hasChildField: { type: String, value: '_haschildren' },
         multiSelect: { type: Boolean, value: false },
+        multiSelectColumn: { type: Number, value: 0 },
         selectedList: { type: Array, value: [] },
         getRowPartName: { type: Function, value: () => { } },
         getCellPartName: { type: Function, value: () => { } },
@@ -1003,7 +1005,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     _getRowMargin(row, index) {
-        if (index === 0 && (this.tree)) {
+        if (index === Number(this.treeColumn) && (this.tree)) {
             return `margin-left: ${row._level * 16 + 'px'}`;
         }
         return 'display:none;';
@@ -1066,22 +1068,22 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     getTemplateForCell(tree, multiSelect, index) {
-        if (index !== 0) {
-            return undefined;
-        }
-        if (!this.tree && !this.multiSelect) {
+        const showMultiSelect = this.multiSelect && (index === Number(this.multiSelectColumn));
+        const showTree = this.tree && (index === Number(this.treeColumn));
+
+        if (!showTree && !showMultiSelect) {
             return undefined;
         }
 
-        if (this.tree && !this.multiSelect) {
+        if (!showMultiSelect && showTree) {
             return new Template(PlTable.treeFirstCellTemplate);
         }
 
-        if (!this.tree && this.multiSelect) {
+        if (showMultiSelect && !showTree) {
             return new Template(PlTable.checkboxCellTemplate);
         }
 
-        if (this.tree && this.multiSelect) {
+        if (showMultiSelect && showTree) {
             return new Template(PlTable.treeFirstCellTemplate + PlTable.checkboxCellTemplate);
         }
     }
