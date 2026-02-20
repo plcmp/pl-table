@@ -432,7 +432,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 </div>
                 <pl-virtual-scroll canvas="[[$.rowsContainer]]" items="{{_vdata}}" as="row" id="scroller" variable-row-height=[[variableRowHeight]]>
                     <template id="tplRow">
-                        <div part$="[[_getRowParts(row)]]" class="row" loading$="[[_rowLoading(row, refreshing)]]" active$="[[_isRowActive(row, selected)]]" on-click="[[_onRowClick]]" on-dblclick="[[_onRowDblClick]]" on-contextmenu="[[_onRowContextMenu]]">
+                        <div part$="[[_getRowParts(row)]]" class="row" loading$="[[_rowLoading(row, refreshing)]]" active$="[[_isRowActive(row, selected, selectedList, multiSelect)]]" on-click="[[_onRowClick]]" on-dblclick="[[_onRowDblClick]]" on-contextmenu="[[_onRowContextMenu]]">
                             <template d:repeat="[[_filterCols(_columns)]]" d:as="column">
                                 <div part$="[[_getCellParts(row, column)]]" class$="[[_getCellClass(column, 'cell')]]" 
                                      hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" 
@@ -908,8 +908,8 @@ class PlTable extends PlResizeableMixin(PlElement) {
         return cols.filter(x => !x._isHeaderColumn);
     }
 
-    _isRowActive(row, selected) {
-        return row === selected;
+    _isRowActive(row, selected, selectedList, multiSelect) {
+        return multiSelect ? selectedList.includes(row) : row === selected;
     }
 
     _changeColumnSort(column, sort, init) {
