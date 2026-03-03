@@ -15,7 +15,7 @@ import './pl-table-column.js';
 class PlTable extends PlResizeableMixin(PlElement) {
     static properties = {
         data: { type: Array, value: () => [], observer: '_dataObserver' },
-        selected: { type: Object, value: () => null, observer: '_selectedObserver' },
+        selected: { type: Object, value: null, observer: '_selectedObserver' },
         tree: { type: Boolean, observer: '_treeModeChange' },
         _vdata: { type: Array, value: () => [] },
         _columns: { type: Array, value: () => [] },
@@ -23,7 +23,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         pkeyField: { type: String },
         hasChildField: { type: String, value: '_haschildren' },
         multiSelect: { type: Boolean, value: false },
-        selectedList: { type: Array, value: [] },
+        selectedList: { type: Array, value: () => [] },
         getRowPartName: { type: Function, value: () => { } },
         getCellPartName: { type: Function, value: () => { } },
         variableRowHeight: { type: Boolean, value: false, observer: '_variableRowHeightObserver' },
@@ -392,8 +392,15 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
     `;
 
-    static checkboxCellTemplate = `<pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
-    static treeFirstCellTemplate = `<pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>`;
+    static checkboxCellTemplate = html`
+        <pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
+
+    static treeFirstCellTemplate = html`
+        <pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>`;
+
+    static treeFirstCheckboxCellTemplate = html`
+        <pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>
+        <pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
 
     static template = html`
         <style id="columnSizes"></style>
@@ -1074,15 +1081,15 @@ class PlTable extends PlResizeableMixin(PlElement) {
         }
 
         if (this.tree && !this.multiSelect) {
-            return new Template(PlTable.treeFirstCellTemplate);
+            return PlTable.treeFirstCellTemplate;
         }
 
         if (!this.tree && this.multiSelect) {
-            return new Template(PlTable.checkboxCellTemplate);
+            return PlTable.checkboxCellTemplate;
         }
 
         if (this.tree && this.multiSelect) {
-            return new Template(PlTable.treeFirstCellTemplate + PlTable.checkboxCellTemplate);
+            return PlTable.treeFirstCheckboxCellTemplate;
         }
     }
 
