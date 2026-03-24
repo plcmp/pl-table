@@ -752,7 +752,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 style.push('display: none !important');
             } else if (el.width) {
                 style.push(`width: ${el.width}px`);
-                style.push(el.minWidth < el.with ? `min-width: ${el.minWidth}px` : `min-width: ${el.width}px`);
+                style.push(el.minWidth < el.width ? `min-width: ${el.minWidth}px` : `min-width: ${el.width}px`);
             } else {
                 style.push(`flex: 1`);
                 style.push(`min-width: ${el.minWidth}px`);
