@@ -456,7 +456,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             </div>
             <div id="footerContainer">
                 <div id="footer">
-                    <div d:repeat="[[_filterCols(_columns)]]" d:as="column" class="footerEl" hidden$=[[column.hidden]] fixed$=[[column.fixed]] action$="[[column.action]]" class$="[[_getCellClass(column, 'footerEl)]]">
+                    <div d:repeat="[[_filterCols(_columns)]]" d:as="column" class="footerEl" hidden$=[[column.hidden]] fixed$=[[column.fixed]] action$="[[column.action]]" class$="[[_getCellClass(column, 'footerEl')]]">
                         <div class="footerCell">
                             [[column.footerTemplate]]
                         </div>
