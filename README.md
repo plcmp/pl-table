@@ -12,8 +12,8 @@ npm i @plcmp/pl-table
 
 ```html
 <pl-table id="usersTable">
-    <pl-table-column header="Name" field="name" sortable tooltip-field="name"></pl-table-column>
-    <pl-table-column header="Email" field="email" tooltip-field="email"></pl-table-column>
+    <pl-table-column header="Name" field="name" sortable tooltip-field></pl-table-column>
+    <pl-table-column header="Email" field="email" tooltip-field></pl-table-column>
     <pl-table-column header="Created" field="createdAt" kind="date" format="DD.MM.YYYY"></pl-table-column>
 </pl-table>
 
@@ -74,7 +74,7 @@ Main public properties:
 
 - `header: string` - header label
 - `field: string` - row field path (supports dot notation)
-- `tooltipField: string` - tooltip field path for cell hover
+- `tooltipField: string` - tooltip field path for cell hover; when `tooltip-field` is present without a value, column `field` is used
 - `kind: string` - value kind (`date` supported)
 - `format: string` - date format when `kind="date"`
 - `width: number` - column width in pixels
@@ -94,17 +94,27 @@ Tooltips are owned by each column and shown on cell hover (`mouseenter`).
 
 ### Option 1: `tooltip-field` (recommended)
 
-Use a plain field path for tooltip text:
+Use `tooltip-field` as a boolean attribute when tooltip text should come from the column `field`:
 
 ```html
 <pl-table-column
     header="Description"
     field="description"
-    tooltip-field="description">
+    tooltip-field>
 </pl-table-column>
 ```
 
-Use this when tooltip text is the same as, or directly derived from, row data.
+If tooltip text must come from a different path, provide it explicitly:
+
+```html
+<pl-table-column
+    header="Owner"
+    field="ownerCode"
+    tooltip-field="ownerName">
+</pl-table-column>
+```
+
+Use this option when tooltip text is the same as, or directly derived from, row data.
 
 ### Option 2: custom tooltip template
 
