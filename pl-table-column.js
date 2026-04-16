@@ -27,6 +27,8 @@ class PlTableColumn extends PlElement {
         sort: { type: String, observer: 'sortChanged' },
         fixed: { type: Boolean },
         action: { type: Boolean },
+        treeColumn: { type: Boolean },
+        multiSelectColumn: { type: Boolean },
 
         _index: { type: Number },
         _template: { type: Object },

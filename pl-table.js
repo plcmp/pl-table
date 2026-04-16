@@ -17,12 +17,14 @@ class PlTable extends PlResizeableMixin(PlElement) {
         data: { type: Array, value: () => [], observer: '_dataObserver' },
         selected: { type: Object, value: null, observer: '_selectedObserver' },
         tree: { type: Boolean, observer: '_treeModeChange' },
+        treeColumn: { type: Number, value: 0 },
         _vdata: { type: Array, value: () => [] },
         _columns: { type: Array, value: () => [] },
         keyField: { type: String },
         pkeyField: { type: String },
         hasChildField: { type: String, value: '_haschildren' },
         multiSelect: { type: Boolean, value: false },
+        multiSelectColumn: { type: Number, value: 0 },
         selectedList: { type: Array, value: () => [] },
         getRowPartName: { type: Function, value: () => { } },
         getCellPartName: { type: Function, value: () => { } },
@@ -509,7 +511,12 @@ class PlTable extends PlResizeableMixin(PlElement) {
             this._init();
         }, 15));
 
-        observer.observe(this, { attributes: false, childList: true, subtree: true });
+        observer.observe(this, {
+            attributes: true,
+            attributeFilter: ['tree-column', 'multi-select-column'],
+            childList: true,
+            subtree: true
+        });
 
         // let nested column components upgrade, then call _init method
         setTimeout(() => {
@@ -901,6 +908,22 @@ class PlTable extends PlResizeableMixin(PlElement) {
             return info;
         });
 
+        const leafColumns = cols.filter(col => !col._isHeaderColumn);
+        const treeColumns = leafColumns.filter(col => col.node.treeColumn === true);
+        const multiSelectColumns = leafColumns.filter(col => col.node.multiSelectColumn === true);
+        const treeColumnFallback = this.hasAttribute('tree-column') ? Number(this.getAttribute('tree-column')) : 0;
+        const multiSelectColumnFallback = this.hasAttribute('multi-select-column') ? Number(this.getAttribute('multi-select-column')) : 0;
+
+        if (treeColumns.length > 1) {
+            console.warn('Several pl-table-column elements have the tree-column attribute. The first one will be used.');
+        }
+        if (multiSelectColumns.length > 1) {
+            console.warn('Several pl-table-column elements have the multi-select-column attribute. The first one will be used.');
+        }
+
+        this.treeColumn = treeColumns[0]?.index ?? treeColumnFallback;
+        this.multiSelectColumn = multiSelectColumns[0]?.index ?? multiSelectColumnFallback;
+
         if (cols.find(x => x.footerTemplate)) {
             this.$.container.style.setProperty('--pl-footer-display', 'flex');
         }
@@ -1010,7 +1033,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     _getRowMargin(row, index) {
-        if (index === 0 && (this.tree)) {
+        if (index === Number(this.treeColumn) && (this.tree)) {
             return `margin-left: ${row._level * 16 + 'px'}`;
         }
         return 'display:none;';
@@ -1073,23 +1096,23 @@ class PlTable extends PlResizeableMixin(PlElement) {
     }
 
     getTemplateForCell(tree, multiSelect, index) {
-        if (index !== 0) {
-            return undefined;
-        }
-        if (!this.tree && !this.multiSelect) {
+        const showTree = tree && (index === Number(this.treeColumn));
+        const showMultiSelect = multiSelect && (index === Number(this.multiSelectColumn));
+
+        if (!showTree && !showMultiSelect) {
             return undefined;
         }
 
-        if (this.tree && !this.multiSelect) {
+        if (showTree && showMultiSelect) {
+            return PlTable.treeFirstCheckboxCellTemplate;
+        }
+
+        if (showTree) {
             return PlTable.treeFirstCellTemplate;
         }
 
-        if (!this.tree && this.multiSelect) {
+        if (showMultiSelect) {
             return PlTable.checkboxCellTemplate;
-        }
-
-        if (this.tree && this.multiSelect) {
-            return PlTable.treeFirstCheckboxCellTemplate;
         }
     }
 
