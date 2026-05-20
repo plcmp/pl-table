@@ -25,6 +25,8 @@ class PlTable extends PlResizeableMixin(PlElement) {
         hasChildField: { type: String, value: '_haschildren' },
         multiSelect: { type: Boolean, value: false },
         multiSelectColumn: { type: Number, value: 0 },
+        /** Checkbox state from row._selected (external pl-selectlist-manager), no in-table tree selection logic. */
+        externalSelect: { type: Boolean, value: false },
         selectedList: { type: Array, value: () => [] },
         getRowPartName: { type: Function, value: () => { } },
         getCellPartName: { type: Function, value: () => { } },
@@ -397,12 +399,19 @@ class PlTable extends PlResizeableMixin(PlElement) {
     static checkboxCellTemplate = html`
         <pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
 
+    static checkboxCellExternalTemplate = html`
+        <pl-checkbox class="multi-checkbox" checked="[[row._selected]]" on-click="[[_onSelect]]"></pl-checkbox>`;
+
     static treeFirstCellTemplate = html`
         <pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>`;
 
     static treeFirstCheckboxCellTemplate = html`
         <pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>
-        <pl-checkbox class="multi-checkbox " checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
+        <pl-checkbox class="multi-checkbox" checked="[[_itemSelected(row, selectedList)]]" on-click="[[_onSelect]]"></pl-checkbox>`;
+
+    static treeFirstCheckboxCellExternalTemplate = html`
+        <pl-icon-button style$="[[_getRowMargin(row, column.index)]]" variant="link" iconset="pl-default" icon="[[_getTreeIcon(row)]]" on-click="[[_onTreeNodeClick]]"></pl-icon-button>
+        <pl-checkbox class="multi-checkbox" checked="[[row._selected]]" on-click="[[_onSelect]]"></pl-checkbox>`;
 
     static template = html`
         <style id="columnSizes"></style>
@@ -447,7 +456,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                                      hidden$="[[column.hidden]]" fixed$="[[column.fixed]]" 
                                      action$="[[column.action]]"
                                      on-mouseenter="[[onCellMouseEnter]]">
-                                    [[getTemplateForCell(tree, multiSelect, column.index)]]
+                                    [[getTemplateForCell(tree, multiSelect, externalSelect, column.index)]]
                                     [[column.cellTemplate]]
                                     <span class="column-resizer" hidden$="[[!column.resizable]]" on-mousedown="[[onResize]]"></span>
                                 </div>
@@ -847,7 +856,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         this.$.columnSizes.textContent = classes;
 
         setTimeout(() => {
-            // необходимо для отрисовки грида во вкладках, которые изначально скрыты
+            // Required to render the grid in tabs that start out hidden
             this.$.scroller.render();
             const colWidth = Array.from(this.root.querySelectorAll('.headerEl:not(.group)'))
                 .map(x => x.offsetWidth)
@@ -957,8 +966,8 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
         sorts.splice(0, 0, newSort);
 
-        // если сортировка была указана в гриде, то выставляем ее по-тихому, без уведомления о мутации
-        // иначе по клику на сортировку вызываем мутацию и перезагружаем датасет
+        // If sort was set on the grid, apply it silently without a mutation notification
+        // Otherwise a sort click triggers a mutation and dataset reload
         if (init) {
             this.data.sorts = sorts;
         } else {
@@ -992,8 +1001,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
             return false;
         }
 
-        // проверка, что выделенный элемент присутствует в списке видимых данных
-        // необходимо при инлайн удалении строки
+        // Ensure the selected row is still in the visible data (e.g. after inline row delete)
         if (event.model.row && this._vdata.includes(event.model.row)) {
             this.selected = event.model.row;
         }
@@ -1096,7 +1104,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
         }
     }
 
-    getTemplateForCell(tree, multiSelect, index) {
+    getTemplateForCell(tree, multiSelect, externalSelect, index) {
         const showTree = tree && (index === Number(this.treeColumn));
         const showMultiSelect = multiSelect && (index === Number(this.multiSelectColumn));
 
@@ -1105,7 +1113,9 @@ class PlTable extends PlResizeableMixin(PlElement) {
         }
 
         if (showTree && showMultiSelect) {
-            return PlTable.treeFirstCheckboxCellTemplate;
+            return externalSelect
+                ? PlTable.treeFirstCheckboxCellExternalTemplate
+                : PlTable.treeFirstCheckboxCellTemplate;
         }
 
         if (showTree) {
@@ -1113,7 +1123,9 @@ class PlTable extends PlResizeableMixin(PlElement) {
         }
 
         if (showMultiSelect) {
-            return PlTable.checkboxCellTemplate;
+            return externalSelect
+                ? PlTable.checkboxCellExternalTemplate
+                : PlTable.checkboxCellTemplate;
         }
     }
 

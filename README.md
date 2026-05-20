@@ -45,7 +45,8 @@ Main public properties:
 - `data: Array` - table rows (supports `data.sorts` for sort descriptors)
 - `selected: Object | null` - currently selected row in single-select mode
 - `multiSelect: boolean` - enables checkbox selection (`selectedList`)
-- `selectedList: Array` - selected rows in multi-select mode
+- `externalSelect: boolean` - checkbox state from `row._selected` (`true` / `null` / `false`); pair with `pl-selectlist-manager` for tree/partial selection
+- `selectedList: Array` - selected rows in multi-select mode; checkbox checked only if row is in this list (no parent/descendant logic in the table)
 - `tree: boolean` - enables tree mode
 - `keyField: string` - row key field for tree mode
 - `pkeyField: string` - parent key field for tree mode
