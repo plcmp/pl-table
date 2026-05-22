@@ -882,6 +882,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
                 headerTemplate: column._headerTemplate,
                 filterTemplate: column._filterTemplate,
                 footerTemplate: column._footerTemplate,
+                tooltipField: column.tooltipField,
                 _isHeaderColumn: false,
                 _hidden: column._hidden || column.hidden || false,
                 node: column
