@@ -15,6 +15,7 @@ npm i @plcmp/pl-table
     <pl-table-column header="Name" field="name" sortable tooltip-field></pl-table-column>
     <pl-table-column header="Email" field="email" tooltip-field></pl-table-column>
     <pl-table-column header="Created" field="createdAt" kind="date" format="DD.MM.YYYY"></pl-table-column>
+    <pl-table-column header="Balance" field="balance" kind="number" format="+0,0#"></pl-table-column>
 </pl-table>
 
 <script type="module">
@@ -22,8 +23,8 @@ npm i @plcmp/pl-table
 
     const table = document.querySelector('#usersTable');
     table.data = [
-        { name: 'Alice', email: 'alice@example.com', createdAt: '2026-02-15' },
-        { name: 'Bob', email: 'bob@example.com', createdAt: '2026-02-16' }
+        { name: 'Alice', email: 'alice@example.com', createdAt: '2026-02-15', balance: 1234.5 },
+        { name: 'Bob', email: 'bob@example.com', createdAt: '2026-02-16', balance: -12.34 }
     ];
 </script>
 ```
@@ -76,8 +77,8 @@ Main public properties:
 - `header: string` - header label
 - `field: string` - row field path (supports dot notation)
 - `tooltipField: string` - tooltip field path for cell hover; when `tooltip-field` is present without a value, column `field` is used
-- `kind: string` - value kind (`date` supported)
-- `format: string` - date format when `kind="date"`
+- `kind: string` - value kind (`date` or `number`)
+- `format: string` - date format when `kind="date"`, number format mask when `kind="number"`
 - `width: number` - column width in pixels
 - `minWidth: number` - minimum width (default: `50`)
 - `align: string` - body alignment (`left` by default)
@@ -140,6 +141,14 @@ Use this for rich content or custom formatting.
 - Return empty text for cells that should not show hints.
 - Use `keep-hover` only when tooltip content is interactive.
 - Keep cell content and tooltip content aligned to avoid user confusion.
+
+## Number formatting
+
+Set `kind="number"` to format numeric values with `Intl.NumberFormat` using the `ru-RU` locale.
+
+Use `0` for required fraction digits and `#` for optional fraction digits. A leading `+` displays a sign for positive values except zero.
+
+Invalid or omitted formats use one required fraction digit by default.
 
 ## Sorting behavior
 

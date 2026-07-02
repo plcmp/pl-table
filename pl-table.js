@@ -12,7 +12,30 @@ import dayjs from 'dayjs/esm/index.js';
 
 import './pl-table-column.js';
 
+function getNumberFormatOptions(format) {
+    const match = format?.match(/^(?<signed>\+)?0(?:[,.](?=[0#])(?<required>0*)(?<optional>#*))?$/);
+
+    if (!match) return {
+        useGrouping: true,
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+        signDisplay: 'auto'
+    };
+
+    const { signed, required = '', optional = '' } = match.groups;
+
+    return {
+        useGrouping: true,
+        minimumFractionDigits: required.length,
+        maximumFractionDigits: required.length + optional.length,
+        signDisplay: signed ? 'exceptZero' : 'auto'
+    };
+}
+
 class PlTable extends PlResizeableMixin(PlElement) {
+    /** @type {Intl.NumberFormat | undefined} */
+    _numberFormatter;
+
     static properties = {
         data: { type: Array, value: () => [], observer: '_dataObserver' },
         selected: { type: Object, value: null, observer: '_selectedObserver' },
@@ -570,6 +593,14 @@ class PlTable extends PlResizeableMixin(PlElement) {
             if (kind === 'date' && row[field]) {
                 return dayjs(this.getByPath(row, field)).format(format || 'DD.MM.YYYY');
             }
+
+            if (kind === 'number') {
+                const value = this.getByPath(row, field);
+                if (!Number.isFinite(value)) return '';
+                this._numberFormatter ??= new Intl.NumberFormat('ru-RU', getNumberFormatOptions(format));
+                return this._numberFormatter.format(value);
+            }
+
             return this.getByPath(row, field);
         }
     }
