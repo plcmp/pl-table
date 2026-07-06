@@ -13,6 +13,10 @@ import dayjs from 'dayjs/esm/index.js';
 import './pl-table-column.js';
 
 class PlTable extends PlResizeableMixin(PlElement) {
+    containerResizeObserver = null;
+    mutationObserver = null;
+    headerResizeObserver = null;
+
     static properties = {
         data: { type: Array, value: () => [], observer: '_dataObserver' },
         selected: { type: Object, value: null, observer: '_selectedObserver' },
@@ -492,7 +496,7 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
         if (styleComment) this.shadowRoot.append(styleComment._tpl.tpl.content.cloneNode(true));
 
-        const headerResizeObserver = new ResizeObserver(throttle((entries) => {
+        this.headerResizeObserver = new ResizeObserver(throttle((entries) => {
             const headerWidth = entries[0].contentRect.width;
 
             if (this.$.container.offsetWidth > headerWidth) {
@@ -502,9 +506,9 @@ class PlTable extends PlResizeableMixin(PlElement) {
             }
         }, 5));
 
-        headerResizeObserver.observe(this.$.header);
+        this.headerResizeObserver.observe(this.$.header);
 
-        const containerResizeObserver = new ResizeObserver(throttle(() => {
+        this.containerResizeObserver = new ResizeObserver(throttle(() => {
             if (this.$.container.scrollHeight <= this.$.container.offsetHeight) {
                 this.$.container.style.setProperty('--pl-footer-container-position', 'absolute');
             } else {
@@ -514,13 +518,13 @@ class PlTable extends PlResizeableMixin(PlElement) {
             this.$.scroller.render();
         }, 5));
 
-        containerResizeObserver.observe(this.$.rowsContainer);
+        this.containerResizeObserver.observe(this.$.rowsContainer);
 
-        const observer = new MutationObserver(throttle(() => {
+        this.mutationObserver = new MutationObserver(throttle(() => {
             this._init();
         }, 15));
 
-        observer.observe(this, {
+        this.mutationObserver.observe(this, {
             attributes: true,
             attributeFilter: ['tree-column', 'multi-select-column'],
             childList: true,
@@ -534,6 +538,13 @@ class PlTable extends PlResizeableMixin(PlElement) {
             }
             this._init();
         }, 0);
+    }
+
+    disconnectedCallback() {
+        this.containerResizeObserver?.unobserve(this.$.rowsContainer);
+        this.mutationObserver?.disconnect();
+        this.headerResizeObserver?.disconnect();
+        super.disconnectedCallback();
     }
 
     _isResizable(group, resizable) {
