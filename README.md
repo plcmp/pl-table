@@ -77,7 +77,7 @@ Main public properties:
 - `header: string` - header label
 - `field: string` - row field path (supports dot notation)
 - `tooltipField: string` - tooltip field path for cell hover; when `tooltip-field` is present without a value, column `field` is used
-- `kind: string` - value kind (`date` or `number`)
+- `kind: string` - value kind (`date` or `number`; custom kinds via `PlTable.registerKind`)
 - `format: string` - date format when `kind="date"`, number format mask when `kind="number"`
 - `width: number` - column width in pixels
 - `minWidth: number` - minimum width (default: `50`)
@@ -149,6 +149,17 @@ Set `kind="number"` to format numeric values with `Intl.NumberFormat` using the 
 Use `0` for required fraction digits and `#` for optional fraction digits. A leading `+` displays a sign for positive values except zero.
 
 Invalid or omitted formats use one required fraction digit by default.
+
+Custom kinds:
+
+```js
+import { PlTable } from '@plcmp/pl-table/pl-table.js';
+
+PlTable.registerKind('currency', (value) => { /* … */ });
+// PlTable.registerKind('currency', fn, true) — replace an existing kind
+```
+
+Always import `@plcmp/pl-table/pl-table.js` as the package entry. `pl-table-column.js` also side-imports `pl-table.js`, so a lone column import still wires shared `_getValue` / `getByPath`.
 
 ## Sorting behavior
 
