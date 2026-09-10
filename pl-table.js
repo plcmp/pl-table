@@ -1207,10 +1207,3 @@ export class PlTable extends PlResizeableMixin(PlElement) {
 
 customElements.define('pl-table', PlTable);
 
-// Share value helpers with columns after both modules finish (cycle-safe).
-customElements.whenDefined('pl-table-column').then(() => {
-    const columnProto = customElements.get('pl-table-column').prototype;
-    columnProto._getValue = PlTable.prototype._getValue;
-    columnProto.getByPath = PlTable.prototype.getByPath;
-});
-

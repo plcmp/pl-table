@@ -155,11 +155,15 @@ Custom kinds:
 ```js
 import { PlTable } from '@plcmp/pl-table/pl-table.js';
 
-PlTable.registerKind('currency', (value) => { /* … */ });
+PlTable.registerKind('currency', (value, { row, field, format }) => {
+    // return display string
+});
 // PlTable.registerKind('currency', fn, true) — replace an existing kind
 ```
 
-Always import `@plcmp/pl-table/pl-table.js` as the package entry. `pl-table-column.js` also side-imports `pl-table.js`, so a lone column import still wires shared `_getValue` / `getByPath`.
+Formatter signature: `(value, { row, field, format }) => unknown`.
+
+Built-in `date` / `number` live in `PlTable.kindFormatters`; overwrite only with `replace: true`.
 
 ## Sorting behavior
 

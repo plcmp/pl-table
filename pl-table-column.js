@@ -2,8 +2,6 @@ import { PlElement, html, css } from 'polylib';
 import '@plcmp/pl-icon';
 import '@plcmp/pl-iconset-default';
 import { createTooltip } from '@plcmp/pl-tooltip';
-// Ensures pl-table.js loads even if only the column module is imported (shares _getValue / getByPath).
-import './pl-table.js';
 
 class PlTableColumn extends PlElement {
     /** @type ?PlTooltip */
