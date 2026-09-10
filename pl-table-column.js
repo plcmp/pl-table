@@ -1,35 +1,11 @@
 import { PlElement, html, css } from 'polylib';
 import '@plcmp/pl-icon';
 import '@plcmp/pl-iconset-default';
-import dayjs from 'dayjs/esm/index.js';
 import { createTooltip } from '@plcmp/pl-tooltip';
-
-function getNumberFormatOptions(format) {
-    const match = format?.match(/^(?<signed>\+)?0(?:[,.](?=[0#])(?<required>0*)(?<optional>#*))?$/);
-
-    if (!match) return {
-        useGrouping: true,
-        minimumFractionDigits: 1,
-        maximumFractionDigits: 1,
-        signDisplay: 'auto'
-    };
-
-    const { signed, required = '', optional = '' } = match.groups;
-
-    return {
-        useGrouping: true,
-        minimumFractionDigits: required.length,
-        maximumFractionDigits: required.length + optional.length,
-        signDisplay: signed ? 'exceptZero' : 'auto'
-    };
-}
 
 class PlTableColumn extends PlElement {
     /** @type ?PlTooltip */
     _tooltip;
-
-    /** @type {Intl.NumberFormat | undefined} */
-    _numberFormatter;
 
     static properties = {
         header: { type: String },
@@ -245,36 +221,6 @@ class PlTableColumn extends PlElement {
             },
             bubbles: true
         }));
-    }
-
-    _getValue(row, field, kind, format) {
-        if (row) {
-            if (kind === 'date' && row[field]) {
-                return dayjs(this.getByPath(row, field)).format(format || 'DD.MM.YYYY');
-            }
-
-            if (kind === 'number') {
-                const value = this.getByPath(row, field);
-                if (!Number.isFinite(value)) return '';
-                this._numberFormatter ??= new Intl.NumberFormat('ru-RU', getNumberFormatOptions(format));
-                return this._numberFormatter.format(value);
-            }
-
-            return this.getByPath(row, field);
-        }
-    }
-
-    getByPath(object, path, delimiter = '.') {
-        if (path === undefined) return '';
-        path = path.split(delimiter);
-        let i;
-        for (i = 0; i < path.length - 1; i++) {
-            if (!object[path[i]]) {
-                return;
-            }
-            object = object[path[i]];
-        }
-        return object[path[i]];
     }
 }
 
