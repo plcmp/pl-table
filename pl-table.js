@@ -32,9 +32,39 @@ function getNumberFormatOptions(format) {
     };
 }
 
-class PlTable extends PlResizeableMixin(PlElement) {
-    /** @type {Intl.NumberFormat | undefined} */
-    _numberFormatter;
+// Intl.NumberFormat construction is expensive (~50× slower than .format());
+// cache by format mask so virtualized re-renders do not recreate it per cell.
+/** @type {Map<string, Intl.NumberFormat>} */
+const numberFormatters = new Map();
+
+function getNumberFormatter(format) {
+    const key = format ?? '';
+    let formatter = numberFormatters.get(key);
+    if (!formatter) {
+        formatter = new Intl.NumberFormat('ru-RU', getNumberFormatOptions(format));
+        numberFormatters.set(key, formatter);
+    }
+    return formatter;
+}
+
+export class PlTable extends PlResizeableMixin(PlElement) {
+    static kindFormatters = {
+        date(value, { format }) {
+            if (!value) return;
+            return dayjs(value).format(format || 'DD.MM.YYYY');
+        },
+        number(value, { format }) {
+            if (!Number.isFinite(value)) return '';
+            return getNumberFormatter(format).format(value);
+        }
+    };
+
+    static registerKind(name, formatter, replace = false) {
+        if (this.kindFormatters[name] && !replace) {
+            throw new Error(`pl-table: kind "${name}" is already registered`);
+        }
+        this.kindFormatters[name] = formatter;
+    }
 
     containerResizeObserver = null;
     mutationObserver = null;
@@ -601,18 +631,9 @@ class PlTable extends PlResizeableMixin(PlElement) {
 
     _getValue(row, field, kind, format) {
         if (row) {
-            if (kind === 'date' && row[field]) {
-                return dayjs(this.getByPath(row, field)).format(format || 'DD.MM.YYYY');
-            }
-
-            if (kind === 'number') {
-                const value = this.getByPath(row, field);
-                if (!Number.isFinite(value)) return '';
-                this._numberFormatter ??= new Intl.NumberFormat('ru-RU', getNumberFormatOptions(format));
-                return this._numberFormatter.format(value);
-            }
-
-            return this.getByPath(row, field);
+            const value = this.getByPath(row, field);
+            const formatter = PlTable.kindFormatters[kind];
+            return formatter ? formatter(value, { row, field, format }) : value;
         }
     }
 
@@ -1185,3 +1206,4 @@ class PlTable extends PlResizeableMixin(PlElement) {
 }
 
 customElements.define('pl-table', PlTable);
+
