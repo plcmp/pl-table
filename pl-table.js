@@ -133,7 +133,8 @@ export class PlTable extends PlResizeableMixin(PlElement) {
             background-color: var(--pl-grey-lightest);
             z-index: 2;
             bottom: 0;
-            position: var(--pl-footer-container-position, absolute);
+            position: sticky;
+            flex-shrink: 0;
         }
 
         #header{
@@ -253,12 +254,11 @@ export class PlTable extends PlResizeableMixin(PlElement) {
         }
 
         #rowsContainer {
-            height: 100%;
+            flex: 1 0 auto;
             width: 100%;
             position: relative;
             display: flex;
             flex-direction: column;
-            flex-shrink:0;
         }
 
         .row {
@@ -562,12 +562,6 @@ export class PlTable extends PlResizeableMixin(PlElement) {
         this.headerResizeObserver.observe(this.$.header);
 
         this.containerResizeObserver = new ResizeObserver(throttle(() => {
-            if (this.$.container.scrollHeight <= this.$.container.offsetHeight) {
-                this.$.container.style.setProperty('--pl-footer-container-position', 'absolute');
-            } else {
-                this.$.container.style.setProperty('--pl-footer-container-position', 'sticky');
-            }
-
             this.$.scroller.render();
         }, 5));
 
@@ -997,7 +991,7 @@ export class PlTable extends PlResizeableMixin(PlElement) {
         this.treeColumn = treeColumns[0]?.index ?? treeColumnFallback;
         this.multiSelectColumn = multiSelectColumns[0]?.index ?? multiSelectColumnFallback;
 
-        if (cols.find(x => x.footerTemplate)) {
+        if (cols.some(col => col.footerTemplate)) {
             this.$.container.style.setProperty('--pl-footer-display', 'flex');
         }
 
