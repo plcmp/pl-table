@@ -138,19 +138,20 @@ class PlTableColumn extends PlElement {
         const tooltipTpl = tplEls.find(tplEl => tplEl._tpl.tpl.getAttribute('is') === 'tooltip');
 
         if (headerTpl) {
-            this._headerTemplate = headerTpl?._tpl;
+            this._headerTemplate = Object.create(headerTpl._tpl);
             this._headerTemplate._hctx = [...headerTpl._hctx, this];
         }
         if (footerTpl) {
-            this._footerTemplate = footerTpl?._tpl;
+            this._footerTemplate = Object.create(footerTpl._tpl);
             this._footerTemplate._hctx = [...footerTpl._hctx, this];
         }
         if (filterTpl) {
-            this._filterTemplate = filterTpl?._tpl;
+            this._filterTemplate = Object.create(filterTpl._tpl);
             this._filterTemplate._hctx = [...filterTpl._hctx, this];
         }
         if (tooltipTpl || this.tooltipField !== undefined) {
-            this._tooltip = createTooltip(tooltipTpl?._tpl ?? html`[[_getTooltipText(row, column)]]`, tooltipTpl?._hctx);
+            const tipTpl = tooltipTpl ? Object.create(tooltipTpl._tpl) : html`[[_getTooltipText(row, column)]]`;
+            this._tooltip = createTooltip(tipTpl, tooltipTpl?._hctx);
             this._tooltip.keepHover = Boolean(tooltipTpl?._tpl.tpl.attributes['keep-hover']);
 
             // search pl-table element
@@ -165,7 +166,7 @@ class PlTableColumn extends PlElement {
 
         const cellTpl = tplEls.find(tplEl => !tplEl._tpl.tpl.hasAttribute('is'));
         if (cellTpl) {
-            this._cellTemplate = cellTpl?._tpl;
+            this._cellTemplate = Object.create(cellTpl._tpl);
             this._cellTemplate._hctx = [...cellTpl._hctx, this];
         } else {
             this._cellTemplate = html`<span class="cell-content" >[[_getValue(row, field, kind, format)]]</span>`;
