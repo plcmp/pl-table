@@ -88,7 +88,7 @@ export class PlTable extends PlResizeableMixin(PlElement) {
         getRowPartName: { type: Function, value: () => { } },
         getCellPartName: { type: Function, value: () => { } },
         variableRowHeight: { type: Boolean, value: false, observer: '_variableRowHeightObserver' },
-        growing: { type: Boolean, value: false, observer: '_growingObserver' },
+        growing: { type: Boolean, value: false, reflectToAttribute: true },
         customRowTemplate: { type: Object, observer: '_customRowTemplateObserver' },
         refreshing: { type: Boolean, value: false, observer: '_observeRefreshing' },
         skeletonHeight: { type: String, observer: '_skeletonHeightObserver' },
@@ -116,6 +116,11 @@ export class PlTable extends PlResizeableMixin(PlElement) {
             overflow: auto;
             position:relative;
             contain: var(--pl-table-contain, size);
+        }
+
+        /* growing: без contain:size контент задаёт высоту; overflow уже auto (H-scroll). */
+        :host([growing]) #container {
+            contain: none;
         }
 
         #headerContainer{
@@ -694,12 +699,6 @@ export class PlTable extends PlResizeableMixin(PlElement) {
         };
         document.addEventListener('mousemove', moveHandler);
         document.addEventListener('mouseup', upHandler);
-    }
-
-    _growingObserver(val) {
-        if (val) {
-            this.$.container.style.setProperty('--pl-table-contain', 'none');
-        }
     }
 
     _dataObserver(_data, _old, mut) {
